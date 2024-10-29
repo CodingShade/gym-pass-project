@@ -1,5 +1,6 @@
 import type { CheckInsRepository } from "@/repositories/check-ins-repository"
 import {CheckIn} from "@prisma/client"
+import { error } from "node:console"
 
 export interface CheckInUseCaseRequest {
   userId: string
@@ -13,6 +14,11 @@ export interface CheckInUseCaseResponse {
 export class CheckInUseCase {
   constructor(private checkInsRepository: CheckInsRepository) {}
   async execute({userId, gymId}:CheckInUseCaseRequest): Promise<CheckInUseCaseResponse>{
+    const checkInOnSameDay = await this.checkInsRepository.findByUserIdOnDate(userId, new Date());
+  if(checkInOnSameDay){
+    throw new Error()
+  }
+
     const checkIn = await this.checkInsRepository.create({
       user_id: userId,
       gym_id: gymId,
